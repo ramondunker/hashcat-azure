@@ -27,11 +27,11 @@
     "type": "string"
     },
     "AllowedIP": {
-    "type": "string"
+    "type": "string",
     "metadata": {
       "description": "This IP address will have access to the VM via SSH and the web interface."
     }
-    }
+  }
   },
   "variables": {
     "nicName": "HashcatNetworkInterface",
