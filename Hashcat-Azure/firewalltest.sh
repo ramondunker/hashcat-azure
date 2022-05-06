@@ -1,7 +1,5 @@
 #!/bin/bash
 # set -e
-# DEBIAN_FRONTEND=noninteractive
-# timedatectl set-timezone Europe/Amsterdam
 while getopts "i:" opt; do
  case $opt in
    i) allowed_ip=$OPTARG;;
@@ -11,7 +9,7 @@ done
 # Install required packages
 export DEBIAN_FRONTEND=noninteractive
 apt-get -o DPkg::Lock::Timeout=60 update
-apt-get -o DPkg::Lock::Timeout=60 -y install ufw
+apt-get -o DPkg::Lock::Timeout=60 install -y ufw
 
 # Hardening
 ufw --force enable
