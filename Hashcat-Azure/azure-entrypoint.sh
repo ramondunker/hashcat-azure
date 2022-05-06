@@ -3,9 +3,9 @@ set -e
 DEBIAN_FRONTEND=noninteractive
 WEB_USER=www-data
 timedatectl set-timezone Europe/Amsterdam
-while getopts "ip:" opt; do
+while getopts "i:" opt; do
  case $opt in
-   ip) allowed_ip=$OPTARG;;
+   i) allowed_ip=$OPTARG;;
  esac
 done
 
