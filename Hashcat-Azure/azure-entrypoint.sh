@@ -14,11 +14,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get -o DPkg::Lock::Timeout=60 update
 apt-get -o DPkg::Lock::Timeout=60 upgrade -y
 apt-get -o DPkg::Lock::Timeout=60 install -y linux-headers-$(uname -r) libglvnd-dev pkg-config apt-transport-https build-essential libncurses5-dev software-properties-common git screen python3-venv python3-pip sqlite3 apache2 certbot python3-certbot-apache jq curl p7zip-full cewl ufw
-ufw --force enable
-ufw allow from $allowed_ip
-#ufw allow from 86.94.176.74
-ufw allow to $allowed_ip
-#ufw allow to 86.94.176.74
+ufw --force disable
 
 # Blacklist nouveau drivers
 cat <<EOT >> /etc/modprobe.d/nouveau.conf
@@ -114,9 +110,7 @@ systemctl enable crackerjack443.service
 # Hardening
 ufw --force enable
 ufw allow from $allowed_ip
-#ufw allow from 86.94.176.74
 ufw allow to $allowed_ip
-#ufw allow to 86.94.176.74
 
 # Reboot (recommended by CUDA installers and to enable UFW)
 reboot
