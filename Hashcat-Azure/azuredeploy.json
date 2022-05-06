@@ -171,7 +171,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/ramondunker/hashcat-azure/main/Hashcat-Azure/firewalltest.sh"
           ],
-          "commandToExecute": "[concat('./firewalltest.sh', ' -ip ', parameters('AllowedIP'))]"
+          "[concat('./firewalltest.sh -i ', parameters('AllowedIP'))]"
         }
       }
     }
