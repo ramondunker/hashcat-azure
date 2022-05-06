@@ -172,7 +172,6 @@
             "https://raw.githubusercontent.com/ramondunker/hashcat-azure/main/Hashcat-Azure/firewalltest.sh"
           ],
           "commandToExecute": "./firewalltest.sh -ip parameters('AllowedIP')"
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File \"', variables('asdfcseScriptFolder'), '/', variables('asdfcseScriptFileName'), '\" \"', parameters('psVariable'))]\""
         }
       }
     }
