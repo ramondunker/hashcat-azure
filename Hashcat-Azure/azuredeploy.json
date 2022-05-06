@@ -171,7 +171,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/ramondunker/hashcat-azure/main/Hashcat-Azure/azure-entrypoint.sh"
           ],
-          "commandToExecute": "./azure-entrypoint.sh -ip [parameters('AllowedIP')]
+          "commandToExecute": "./azure-entrypoint.sh -ip [parameters('AllowedIP')]"
         }
       }
     }
