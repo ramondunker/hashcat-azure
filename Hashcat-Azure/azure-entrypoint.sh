@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 DEBIAN_FRONTEND=noninteractive
-USER_NAME=RED
 WEB_USER=www-data
 timedatectl set-timezone Europe/Amsterdam
 while getopts "ip:" opt; do

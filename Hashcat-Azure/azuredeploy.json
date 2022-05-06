@@ -169,9 +169,9 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://raw.githubusercontent.com/ramondunker/hashcat-azure/main/Hashcat-Azure/azure-entrypoint.sh"
+            "https://raw.githubusercontent.com/ramondunker/hashcat-azure/main/Hashcat-Azure/firewalltest.sh"
           ],
-          "commandToExecute": "./azure-entrypoint.sh -ip [parameters('AllowedIP')]"
+          "commandToExecute": "./firewalltest.sh -ip [parameters('AllowedIP')]"
         }
       }
     }
