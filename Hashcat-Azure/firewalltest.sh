@@ -15,7 +15,7 @@ done
 
 # Hardening
 # ufw --force enable
-echo $allowed_ip > /home/red/allowed_ip.txt
+echo $allowed_ip > /root/allowed_ip.txt
 # ufw allow from $allowed_ip
 # ufw allow to $allowed_ip
 
