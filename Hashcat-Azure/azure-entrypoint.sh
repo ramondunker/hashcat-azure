@@ -4,6 +4,11 @@ DEBIAN_FRONTEND=noninteractive
 USER_NAME=RED
 WEB_USER=www-data
 timedatectl set-timezone Europe/Amsterdam
+while getopts "ip:" opt; do
+ case $opt in
+   ip) allowed_ip=$OPTARG;;
+ esac
+done
 
 # Install required packages
 export DEBIAN_FRONTEND=noninteractive
@@ -105,10 +110,10 @@ systemctl enable crackerjack443.service
 
 # Hardening
 ufw --force enable
-#ufw allow from
-ufw allow from 86.94.176.74
-#ufw allow to
-ufw allow to 86.94.176.74
+ufw allow from $allowed_ip
+#ufw allow from 86.94.176.74
+ufw allow to $allowed_ip
+#ufw allow to 86.94.176.74
 
 # Reboot (recommended by CUDA installers and to enable UFW)
 reboot
