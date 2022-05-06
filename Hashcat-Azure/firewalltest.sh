@@ -10,8 +10,8 @@ done
 
 # Install required packages
 # export DEBIAN_FRONTEND=noninteractive
-# apt-get -o DPkg::Lock::Timeout=60 update
-# apt-get -o DPkg::Lock::Timeout=60 -y install ufw
+apt-get -o DPkg::Lock::Timeout=60 update
+apt-get -o DPkg::Lock::Timeout=60 -y install ufw
 
 # Hardening
 ufw --force enable
