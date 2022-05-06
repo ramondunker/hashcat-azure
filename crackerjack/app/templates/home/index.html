@@ -1,0 +1,134 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-2"></div>
+    <div class="col">
+        <div class="row">
+            <div class="col text-monospace text-center">
+                <div class="p-2 border border-info">
+                    <div style="font-size: 300%;">{{ processes.stats.all }}</div>
+                    <div class="pt-2 pb-2 border-top">processes</div>
+                </div>
+            </div>
+            <div class="col text-monospace text-center">
+                <div class="p-2 border border-info">
+                    <div style="font-size: 300%;">{{ processes.stats.web }}</div>
+                    <div class="pt-2 pb-2 border-top">via web</div>
+                </div>
+            </div>
+            <div class="col text-monospace text-center">
+                <div class="text-monospace p-2 border border-info">
+                    <div style="font-size: 300%;">{{ processes.stats.ssh }}</div>
+                    <div class="pt-2 pb-2 border-top">via ssh</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-2"></div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-1"></div>
+    <div class="col">
+        <form method="post" action="{{ url_for('sessions.create') }}" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="row">
+                <div class="col-9">
+                    <div class="form-group">
+                        <input type="text" name="description" id="description" class="form-control" placeholder="Enter your new session's description here." required>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-block">Create Session</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-1"></div>
+</div>
+
+<div class="row">
+    <div class="col-1"></div>
+    <div class="col">
+        <div class="card">
+            <h3 class="card-header">Sessions</h3>
+            <div class="card-body">
+                <div class="clearfix mb-2">
+                    <div class="float-right">
+                        {% if show_all %}
+                        <a href="{{ url_for('home.index') }}">hide inactive sessions</a>
+                        {% else %}
+                        <a href="{{ url_for('home.index', all=1) }}">show inactive sessions</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <table class="table table-sm table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        {% if current_user.admin %}
+                        <th>User</th>
+                        {% endif %}
+                        <th>Name</th>
+                        <th>State</th>
+                        <th class="text-right">Progress</th>
+                        <th class="text-right">Cracked</th>
+                        <th class="text-center">State</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for session in sessions %}
+                    <tr>
+                        <td>{{ session.id }}</td>
+                        {% if current_user.admin %}
+                        <td>{{ session.username }}</td>
+                        {% endif %}
+                        <td><a href="{{ url_for('sessions.view', session_id=session.id) }}">{{ session.friendly_name }}</a></td>
+                        <td class="table-{{ template().get_hashcat_running_class(session.hashcat.state) }}">{{ template().get_hashcat_running_text(session.hashcat.state) }}</td>
+                        <td class="text-right">{{ session.hashcat.progress }}%</td>
+                        <td class="text-right">
+                            <span>{{ '{0:,}'.format(session.hashcat.cracked_passwords) }}/{{ '{0:,}'.format(session.hashcat.all_passwords) }}</span>
+                            {% if session.hashcat.cracked_passwords > 0 %}
+                            <span>
+                                <form action="{{ url_for('sessions.download_file', session_id=session.id, which_file='cracked') }}" method="post" class="force-inline" autocomplete="off">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <a href="#" class="text-warning ml-1 submit-on-click" title="Download"><i class="fas fa-file-download fa-lg"></i></a>
+                                </form>
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if session.active %}
+                            <form action="{{ url_for('sessions.active_action', session_id=session.id, action='hide') }}" method="post" class="force-inline" autocomplete="off">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <a href="#" class="submit-on-click" title="Click here to hide"><i class="fas fa-eye-slash"></i></a>
+                            </form>
+                            {% else %}
+                            <form action="{{ url_for('sessions.active_action', session_id=session.id, action='show') }}" method="post" class="force-inline" autocomplete="off">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <a href="#" class="submit-on-click" title="Click here to show"><i class="fas fa-eye"></i></a>
+                            </form>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <form action="{{ url_for('sessions.delete', session_id=session.id) }}" method="post" class="d-inline ml-1" id="delete-record-form-{{ session.id }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <a href="#" class="confirm-delete text-danger"><i class="fas fa-trash"></i></a>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-1"></div>
+</div>
+{% endblock %}

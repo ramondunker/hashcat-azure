@@ -1,0 +1,121 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+
+{% if session.hashcat.state == 1 %}
+<div class="row mt-5">
+    <div class="col">
+        <div class="alert alert-warning">This session is currently running. Any changes you make on this page will not have any effect on it unless it is restarted.</div>
+    </div>
+</div>
+{% endif %}
+
+{% set active_nav = 'wordlist' %}
+{% include 'sessions/includes/header.html' %}
+
+<div class="row mt-5">
+    <div class="col-2">
+        {% include 'sessions/includes/nav.html' %}
+    </div>
+    <div class="col">
+        <form id="setup-hashcat" method="post" enctype="multipart/form-data" action="{{ url_for('sessions.setup_wordlist_save', session_id=session.id) }}" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="card">
+                <h5 class="card-header">Wordlist Options</h5>
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="wordlist-global" name="wordlist_type" class="mode-option custom-control-input" value="0" {{ 'checked' if session.hashcat.wordlist_type == 0 or session.hashcat.wordlist_type == '' else '' }}>
+                            <label class="custom-control-label" for="wordlist-global">Global Wordlist</label>
+                        </div>
+
+                        <select name="wordlist" id="wordlist" class="form-control">
+                            <option value=""></option>
+                            <optgroup label="Directories">
+                                {% for name, wordlist in wordlists.items() %}
+                                {% if wordlist['type'] == 'folder' %}
+                                <option value="{{ name }}">{{ name }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </optgroup>
+
+                            <optgroup label="Files">
+                                {% for name, wordlist in wordlists.items() %}
+                                {% if wordlist['type'] == 'file' %}
+                                <option value="{{ name }}">{{ name }} - {{ wordlist['size_human'] }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="wordlist-session" name="wordlist_type" class="mode-option custom-control-input" value="1" {{ 'checked' if session.hashcat.wordlist_type == 1 else '' }}>
+                            <label class="custom-control-label" for="wordlist-session">Custom Session Wordlist{% if has_custom_wordlist == True %} <small>(already uploaded)</small>{% endif %}</label>
+                        </div>
+
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="custom_wordlist" name="custom_wordlist">
+                            <label class="custom-file-label" for="custom_wordlist">Choose your wordlist</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="wordlist-passwords" name="wordlist_type" class="mode-option custom-control-input" value="2" {{ 'checked' if session.hashcat.wordlist_type == 2 else '' }}>
+                            <label class="custom-control-label" for="wordlist-passwords">Create wordlist from already cracked passwords</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-2">
+                <h5 class="card-header">Rules Options</h5>
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="rule-global" name="rule_type" class="mode-option custom-control-input" value="0" {{ 'checked' if session.hashcat.rule_type == 0 or session.hashcat.rule_type == None or session.hashcat.rule_type == '' else '' }}>
+                            <label class="custom-control-label" for="rule-global">Global Rules</label>
+                        </div>
+
+                        <select name="rule" id="rule" class="form-control">
+                            <option value="">No Rules</option>
+                            {% for key, rule in rules.items() %}
+                            <option value="{{ key }}">{{ rule.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="rule-session" name="rule_type" class="mode-option custom-control-input" value="1" {{ 'checked' if session.hashcat.rule_type == 1 else '' }}>
+                            <label class="custom-control-label" for="rule-session">Custom Session Rule{% if has_custom_rule == True %} <small>(already uploaded)</small>{% endif %}</label>
+                        </div>
+
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="custom_rule" name="custom_rule">
+                            <label class="custom-file-label" for="custom_rule">Choose your rule</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary btn-block">save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/crackerjack/sessions/wordlist.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#rule').select2({}).val('{{ session.hashcat.rule }}').trigger('change');
+        $('#wordlist').select2({}).val('{{ session.hashcat.wordlist }}').trigger('change');
+    });
+</script>
+
+{% endblock %}

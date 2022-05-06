@@ -1,0 +1,14 @@
+[Unit]
+Description=CrackerJack Gunicorn
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/crackerjack
+EnvironmentFile=/etc/environment
+ExecStart=/opt/crackerjack/venv/bin/gunicorn --workers 3 -b 0.0.0.0:80 -m 007 wsgi:app
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,87 @@
+<div class="row mt-5">
+    <div class="col-2"></div>
+    <div class="col">
+        <div class="row">
+            <div class="col-6">
+                <div>
+                    <h1 class="d-inline-block" title="Internal Session Name: {{ session.name }}">{{ session.description if (session.description and session.description|length > 0) else session.name }}</h1>
+                    <span class="badge badge-pill badge-{{ template().get_hashcat_running_class(session.hashcat.state) }}" style="vertical-align: top">{{ template().get_hashcat_running_text(session.hashcat.state) }}</span>
+                </div>
+            </div>
+            <div class="col text-right">
+                {% if session.validation|length > 0 %}
+                <button type="button" class="btn btn-warning" title="" data-container="body" data-toggle="popover" data-placement="left" data-content="* {{ session.validation|join('<br>* ') }}<br><br>Once you have fixed all the above issues, you will be able to start your session." data-original-title="Missing Configuration">Click here to identify missing configuration</button>
+                {% else %}
+                <form method="post" action="{{ url_for('sessions.action', session_id=session.id) }}" id="form-action" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" id="action" value="">
+
+                    {%
+                        if session.hashcat.state == 0 or
+                            session.hashcat.state == 2 or
+                            session.hashcat.state == 3 or
+                            session.hashcat.state == 98
+                    %}
+                    {% if session.hashcat.state == 2 or session.hashcat.state == 98 %}
+                    <a href="#" data-action="restore" title="Restore" class="form-action ml-2 btn btn-info"><i class="fas fa-redo"></i> Restore</a>
+                    {% endif %}
+                    <a href="#" data-action="start" title="Start" class="form-action ml-2 btn btn-success"><i class="fas fa-play-circle"></i> Start</a>
+                    <a href="#" data-action="reset" title="Reset - If the session won't start click this link" class="form-action ml-2 btn btn-danger"><i class="fas fa-sync"></i> Rebuild</a>
+                    {% endif %}
+
+                    {% if session.hashcat.state == 4 %}
+                    <a href="#" data-action="resume" title="Resume" class="form-action ml-2 btn btn-success"><i class="fas fa-play-circle"></i> Continue</a>
+                    {% endif %}
+
+                    {% if session.hashcat.state == 1 %}
+                    <a href="#" data-action="pause" title="Pause" class="form-action ml-2 btn btn-warning"><i class="fas fa-pause-circle"></i> Pause</a>
+                    {% endif %}
+
+                    {% if session.hashcat.state == 1 or session.hashcat.state == 4 %}
+                    <a href="#" data-action="stop" title="Stop" class="form-action ml-2 btn btn-danger"><i class="fas fa-stop-circle"></i> Stop</a>
+                    {% endif %}
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% if session.hashcat.state == 1 %}
+        <div class="row">
+            <div class="col">
+                {% if session.hashcat.progress|int > 0 and session.hashcat.progress|int < 100 %}
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success text-dark" role="progressbar" aria-valuenow="{{ session.hashcat.progress|int }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ session.hashcat.progress|int }}%" title="{{ session.hashcat.progress }}%">{{ session.hashcat.progress }}%</div>
+                {% else %}
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info text-dark" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" title="Please Wait...">Please Wait...</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% if session.hashcat.state == 1 %}
+        <div class="row">
+            <div class="col">
+                <div>Estimated Time: <abbr title="{{ session.hashcat.estimated_completion_time }}">{{ session.hashcat.time_remaining }}</abbr></div>
+                <div>Termination Time: <abbr title="You can set this from the session's settings menu on the left">{{ session.terminate_at }}</abbr></div>
+            </div>
+            <div class="col">
+                <div class="float-right">
+                    <label for="autorefresh" class="mr-2">Auto Refresh Page While Running</label>
+                    <div class="custom-control custom-switch float-right">
+                        <input type="checkbox" class="custom-control-input" id="autorefresh" value="1" checked>
+                        <label class="custom-control-label" for="autorefresh"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/crackerjack/sessions/header.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        CJ_SessionsHeader.init('{{ session.terminate_at }}');
+        {% if session.hashcat.state == 1 %}
+        document.title = document.title + " ({{ '{0:,}'.format(session.hashcat.cracked_passwords) }}/{{ '{0:,}'.format(session.hashcat.all_passwords) }})";
+        {% endif %}
+    });
+</script>

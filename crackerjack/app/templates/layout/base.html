@@ -1,0 +1,25 @@
+<!doctype html>
+<html class="h-100">
+{% include 'layout/head.html' %}
+<body class="d-flex flex-column h-100">
+
+{% include 'layout/topmenu.html' %}
+
+<main role="main" class="flex-shrink-0">
+<div class="container">
+    {% include 'layout/notifications.html' %}
+
+    {% block content %}{% endblock %}
+</div>
+</main>
+
+{% include 'layout/addons.html' %}
+
+{% include 'layout/footer.html' %}
+
+{% if current_user.is_authenticated and setting_get('webpush_enabled', '0')|int == 1 %}
+    {% include 'layout/webpush.html' %}
+{% endif %}
+
+</body>
+</html>

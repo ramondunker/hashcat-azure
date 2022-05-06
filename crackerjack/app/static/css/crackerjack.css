@@ -1,0 +1,28 @@
+.error {
+    color: red;
+}
+
+.session-error-tail {
+    max-width: 840px;
+    overflow: auto;
+}
+
+.shell-log-view {
+    max-width: 900px;
+    overflow: auto;
+}
+
+/* Fix for select2 foreground colour on dark themes. */
+.select2-container {
+    color: black;
+}
+
+/* Force a form to be inline */
+.force-inline {
+    display: inline;
+}
+
+pre {
+    white-space: pre-wrap;
+    word-break: break-all;
+}

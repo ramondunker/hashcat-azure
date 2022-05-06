@@ -1,0 +1,228 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+
+{% set active_nav = 'session' %}
+{% include 'sessions/includes/header.html' %}
+
+<div class="row mt-5">
+    <div class="col-2">
+        {% include 'sessions/includes/nav.html' %}
+    </div>
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th scope="row">Cracking Mode</th>
+                        <td>{{ 'Wordlist' if session.hashcat.mode == 0 else 'Brute Force' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Hash Type</th>
+                        <td><abbr title="{{ supported_hashes[session.hashcat.hashtype] }}">{{ session.hashcat.hashtype }}</abbr></td>
+                    </tr>
+                    {% if session.hashcat.mode == 0 %}
+                    <tr>
+                        <th scope="row">Wordlist</th>
+                        <td>
+                            <abbr title="{{ session.hashcat.wordlist_path }}">
+                                {% if session.hashcat.wordlist_type == 0 or session.hashcat.wordlist_type == '' %}
+                                    {{ session.hashcat.wordlist if session.hashcat.mode == 0 else '' }}
+                                {% elif session.hashcat.wordlist_type == 1 %}
+                                    Custom Session Wordlist
+                                {% elif session.hashcat.wordlist_type == 2 %}
+                                    Generated from Passwords
+                                {% endif %}
+                            </abbr>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Rule</th>
+                        <td><abbr title="{{ session.hashcat.rule_path }}">{{ session.hashcat.rule if session.hashcat.mode == 0 else '' }}</abbr></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <th scope="row">Mask</th>
+                        <td>{% if session.hashcat.mask_type == 0 or session.hashcat.mask_type == '' %}
+                                <abbr title="{{ session.hashcat.masklist_path }}">
+                                    {{ session.hashcat.masklist }}
+                                </abbr>
+                            {% elif session.hashcat.mask_type == 1 %}
+                                <abbr title="{{ session.hashcat.masklist_path }}">
+                                    {{ session.hashcat.masklist }}
+                                </abbr>
+                            {% elif session.hashcat.mask_type == 2 %}
+                                {{ session.hashcat.mask if session.hashcat.mode == 3 else '' }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Increments</th>
+                        <td>
+                            {% if session.hashcat.increment_min|int > 0 or session.hashcat.increment_max|int > 0 %}
+                            {{ session.hashcat.increment_min }} - {{ session.hashcat.increment_max }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th scope="row">Hashes Uploaded</th>
+                        <td class="text-right">
+                            <span>
+                                {% if session.hashes_in_file == -1 %}
+                                    File too large
+                                {% else %}
+                                    {{ '{0:,}'.format(session.hashes_in_file) }}
+                                {% endif %}
+                            </span>
+                            {% if session.hashes_in_file > 0 or session.hashes_in_file == -1 %}
+                            <form action="{{ url_for('sessions.download_file', session_id=session.id, which_file='hashes') }}" method="post" class="force-inline" autocomplete="off">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <a href="#" class="text-warning ml-1 submit-on-click" title="download"><i class="fas fa-file-download fa-lg"></i></a>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Cracked</th>
+                        <td class="text-right">
+                            <span>{{ '{0:,}'.format(session.hashcat.cracked_passwords) }}/{{ '{0:,}'.format(session.hashcat.all_passwords) }}</span>
+                            {% if session.hashcat.cracked_passwords > 0 or session.potfile_has_data() %}
+                            <form action="{{ url_for('sessions.download_file', session_id=session.id, which_file='cracked') }}" method="post" class="force-inline" autocomplete="off">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <a href="#" class="text-warning ml-1 submit-on-click" title="Download cracked hashes+plain"><i class="fas fa-file-download fa-lg"></i></a>
+                            </form>
+                                {% if session.hashcat.state != 1 %}
+                                <form action="{{ url_for('sessions.download_file', session_id=session.id, which_file='plain') }}" method="post" class="force-inline" autocomplete="off">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <a href="#" class="text-success ml-1 submit-on-click" title="Download cracked plain passwords"><i class="fas fa-file-download fa-lg"></i></a>
+                                </form>
+                                <form action="{{ url_for('sessions.download_file', session_id=session.id, which_file='uncracked') }}" method="post" class="force-inline" autocomplete="off">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <a href="#" class="text-success ml-1 submit-on-click" title="Download uncracked hashes"><i class="fas fa-file-download fa-lg"></i></a>
+                                </form>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Terminate At</th>
+                        <td class="text-right">{{ session.terminate_at }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-2"></div>
+    <div class="col">
+        <div>
+            <a href="#" class="raw-progress btn btn-warning">
+                {% if session.hashcat.state == 98 %}
+                <span class="mr-2 text-danger"><i class="fas fa-exclamation"></i></span>
+                {% endif %}
+                View Raw/Debug Information
+            </a>
+            {% if session.hashcat_history|length > 0 %}
+            <a href="#" class="hashcat-history btn btn-info">
+                <span class="mr-2"><i class="fas fa-history"></i></span>
+                View Session History
+            </a>
+            {% endif %}
+        </div>
+        {% if session.hashcat_history|length > 0 %}
+        <div id="hashcat-history" class="d-none mt-4">
+            <table class="table table-sm table-striped">
+                <thead>
+                <tr>
+                    <th>Mode</th>
+                    <th class="text-right">Hash Type</th>
+                    <th>Wordlist</th>
+                    <th>Rule</th>
+                    <th>Mask</th>
+                    <th class="text-right">Increments</th>
+                    <th class="text-right">Run At</th>
+                    <th class="text-center">Opt. Kernel</th>
+                    <th class="text-center">Workload</th>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for history in session.hashcat_history %}
+                <tr>
+                    <td>{{ 'Wordlist' if history.mode == 0 else 'Brute Force' }}</td>
+                    <td class="text-right"><abbr title="{{ supported_hashes[history.hashtype] }}">{{ history.hashtype }}</abbr></td>
+                    <td><abbr title="{{ history.wordlist_path }}">{{ basename(history.wordlist) if history.mode == 0 else '' }}</abbr></td>
+                    <td><abbr title="{{ history.rule_path }}">{{ basename(history.rule) if history.mode == 0 else '' }}</abbr></td>
+                    <td>
+                        {% if history.mode == 3 %}
+                            {% if history.mask_type == 0 or history.mask_type == 1 %}
+                                <abbr title="{{ history.masklist }}">
+                                    {{ basename(history.masklist) }}
+                                </abbr>
+                            {% else %}
+                                {{ history.mask }}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="text-right">
+                        {% if history.mode == 3 and (history.increment_min|int > 0 or history.increment_max|int > 0) %}
+                        {{ history.increment_min }} - {{ history.increment_max }}
+                        {% endif %}
+                    </td>
+                    <td class="text-right">{{ history.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="text-center">{{ 'Yes' if history.optimised_kernel == 1 else 'No' }}</td>
+                    <td class="text-center">{{ '2' if history.workload == None else history.workload }}</td>
+                    <td class="text-center">
+                        <form action="{{ url_for('sessions.history_apply', session_id=history.session_id, history_id=history.id) }}" method="post" id="form-apply-history-{{ history.id }}" autocomplete="off">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <a href="{{ url_for('sessions.history_apply', session_id=history.session_id, history_id=history.id) }}" data-id="{{ history.id }}" title="Apply these settings to the current session" class="apply-history-settings"><i class="fas fa-redo"></i></a>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        <div id="raw-progress" class="d-none mt-4">
+            <table class="table table-sm table-striped">
+                <tbody>
+                {% for key, value in session.hashcat.data_raw.items() %}
+                <tr>
+                    <th scope="row">{{ key }}</th>
+                    <td class="text-right">{{ value }}</td>
+                </tr>
+                {% endfor %}
+                {% if session.hashcat.state == 98 %}
+                <tr>
+                    <td colspan="2">
+                        <div class="session-error-tail">
+                            <pre class="p-2">{{ session.hashcat.tail_screen }}</pre>
+                        </div>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/crackerjack/sessions/view.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        CJ_SessionsView.init("{{ url_for('sessions.status', session_id=session.id) }}", {{ session.hashcat.state }});
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+- name: "Install packages"
+  dnf:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - git
+      - screen
+      - sqlite
+      - policycoreutils-python-utils
+
+- name: "Install latest version of pip"
+  pip:
+    name: pip
+    extra_args: --upgrade
+
+- name: "Install pip cryptography"
+  pip:
+    name: cryptography
+
+# Web server needs to be installed here, otherwise there's no apache user in passwd.
+- name: "Install Apache"
+  yum:
+    name: httpd
+  when: webserver.type == 'apache'
+
+- name: "Install nginx"
+  yum:
+    name: nginx
+  when: webserver.type == 'nginx'
