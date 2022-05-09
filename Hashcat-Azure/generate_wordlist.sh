@@ -8,6 +8,8 @@ if [[ $target == "" ]]; then
   echo 'Target (-t) not given.' >&2
   exit 1
 fi
+
+# Checks for installed packages
 function StartUpChecks() {
   if ! command -v cewl &> /dev/null; then
     sudo apt install cewl
@@ -23,10 +25,12 @@ function StartUpChecks() {
   fi
 }
 
+# Gets the full url of a target, this is required for cewl to work.
 function GetFullURL() {
   url=$(echo "$target" | httpx -fr -silent -json | jq -r '."final-url"')
 }
 
+# Uses cewl to extract strings from targets website. A depth of 3 will be used and all unique words longer than 4 characters will be written to /opt/wordlists/.
 function GenerateWordlists() {
   cewl -d 3 -m 4 -w /opt/wordlists/$target.txt $url
 }
