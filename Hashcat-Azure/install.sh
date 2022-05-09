@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
 WEB_USER=www-data
 timedatectl set-timezone Europe/Amsterdam
 while getopts "i:" opt; do
@@ -10,11 +10,12 @@ while getopts "i:" opt; do
 done
 
 # Install required packages
-export DEBIAN_FRONTEND=noninteractive
 apt-get -o DPkg::Lock::Timeout=60 update
 apt-get -o DPkg::Lock::Timeout=60 upgrade -y
 apt-get -o DPkg::Lock::Timeout=60 install -y linux-headers-$(uname -r) libglvnd-dev pkg-config apt-transport-https build-essential libncurses5-dev software-properties-common git screen python3-venv python3-pip sqlite3 apache2 certbot python3-certbot-apache jq curl p7zip-full cewl ufw
-ufw --force disable
+ufw --force enable
+ufw allow from $allowed_ip
+ufw allow to $allowed_ip
 
 # Blacklist nouveau drivers
 cat <<EOT >> /etc/modprobe.d/nouveau.conf
@@ -64,7 +65,7 @@ rm /opt/wordlists/tmp.7z
 
 # Download and merge rules
 wget --quiet -O /opt/rules/rule1.rule https://raw.githubusercontent.com/cyclone-github/rules/master/cyclone_250.rule
-wget --quiet -O /opt/rules/rule2.rule https://raw.githubusercontent.com/NotSoSecure/password_cracking_rules/master/OneRuleToRuleThemAll.rule
+wget --quiet -O /opt/rules/rule2.rule https://raw.githubusercontent.com/ramondunker/hashcat-azure/main/Hashcat-Azure/OneRuleToRuleThemAll.rule
 wget --quiet -O /opt/rules/rule3.rule https://raw.githubusercontent.com/hashcat/hashcat/master/rules/dive.rule
 wget --quiet -O /opt/rules/rule4.rule https://github.com/beurtschipper/Dutch-Password-List/raw/master/spipbest300.rule
 cat /opt/rules/rule*.rule | sort | uniq > /opt/rules/master.rule
@@ -77,6 +78,7 @@ wget --quiet -O /opt/masks/mask3.hcmask https://raw.githubusercontent.com/xfox64
 cat /opt/masks/mask*.hcmask | sort | uniq > /opt/masks/master.hcmask
 
 # Request SSL certificate
+ufw --force disable
 region=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | jq -r '.compute.location')
 fqdn="$(hostname).$region.cloudapp.azure.com"
 rm /var/www/html/index.html
@@ -84,6 +86,7 @@ systemctl start apache2
 certbot --apache --non-interactive --agree-tos -m info@ramondunker.nl -d $fqdn
 systemctl stop apache2
 systemctl disable apache2
+ufw --force enable
 
 # Install webinterface
 git clone https://github.com/ramondunker/hashcat-azure.git /tmp/hashcat-azure
@@ -106,11 +109,6 @@ chown -R $WEB_USER:$WEB_USER /opt/crackerjack
 setcap CAP_NET_BIND_SERVICE=+eip $(readlink -f `which python3`)                          # Gives python3 access to otherwise restricted ports
 systemctl enable crackerjack80.service
 systemctl enable crackerjack443.service
-
-# Hardening
-ufw --force enable
-ufw allow from $allowed_ip
-ufw allow to $allowed_ip
 
 # Reboot (recommended by CUDA installers and to enable UFW)
 reboot
