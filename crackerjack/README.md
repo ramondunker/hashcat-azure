@@ -1,4 +1,4 @@
-# CrackerJack for Ordina
+# CrackerJack voor Ordina
 
 Deze repository bevat de codebase van de aangepaste versie van Crackerjack voor Hashcat. De volgende onderdelen zijn aangepast:
 * SSL toegevoegd

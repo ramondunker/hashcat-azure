@@ -1,6 +1,6 @@
-# Hashcat Azure
+# Hashcat on Azure
 
-[Deploy to Azure](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Framondunker%2Fhashcat-azure%2Fmain%2FHashcat-Azure%2Fazuredeploy.json)
+[Start een VM op](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Framondunker%2Fhashcat-azure%2Fmain%2FHashcat-Azure%2Fazuredeploy.json)
 
 
 Deze tool zet automatisch een Azure VM op uit de NCasT4_v3-series. Deze wordt ingesteld als hashcracker welke via SSH en de webinterface te bereiken is.
