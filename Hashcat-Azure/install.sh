@@ -10,9 +10,7 @@ while getopts "i:" opt; do
 done
 
 # Check for lock
-while [ "x$(lsof /var/lib/apt/lists/lock)" != "x" ] ; do
-    # if lsof returns output, that means some apt task is running
-    # wait 60 seconds and check again
+while fuser /var/lib/apt/lists/lock > /dev/null ; do
     sleep 10
 done
 
