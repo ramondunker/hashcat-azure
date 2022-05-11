@@ -9,6 +9,13 @@ while getopts "i:" opt; do
  esac
 done
 
+# Check for lock
+while [ "x$(lsof /var/lib/apt/lists/lock)" != "x" ] ; do
+    # if lsof returns output, that means some apt task is running
+    # wait 60 seconds and check again
+    sleep 10
+done
+
 # Install required packages
 apt-get -o DPkg::Lock::Timeout=60 update
 apt-get -o DPkg::Lock::Timeout=60 upgrade -y
