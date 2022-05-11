@@ -5,7 +5,7 @@ Flask-Migrate
 Flask-Login
 Flask-Bcrypt
 Flask-WTF
-ldap3 # TODO - Replace with Flask ldap3 Login
+ldap3
 gunicorn
 Flask-Crontab
 packaging
