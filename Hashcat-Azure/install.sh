@@ -81,6 +81,7 @@ wget --quiet -O /opt/masks/mask1.hcmask https://raw.githubusercontent.com/beurts
 wget --quiet -O /opt/masks/mask2.hcmask https://raw.githubusercontent.com/beurtschipper/Dutch-Password-List/master/spipfollowmasks.hcmask
 wget --quiet -O /opt/masks/mask3.hcmask https://raw.githubusercontent.com/xfox64x/Hashcat-Stuffs/master/masks/9_plus_microsoft_complexity_top_5000_masks.txt
 cat /opt/masks/mask*.hcmask | sort | uniq > /opt/masks/master.hcmask
+rm /opt/masks/mask*.hcmask
 
 # Request SSL certificate
 ufw --force disable
