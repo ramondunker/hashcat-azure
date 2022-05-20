@@ -58,7 +58,7 @@ cewl -d 0 -m 2 -w /opt/wordlists/dutch10_unclean https://nl.wikipedia.org/wiki/L
 cewl -d 0 -m 2 -w /opt/wordlists/dutch11_unclean https://nl.wikipedia.org/wiki/Lijst_van_uitdrukkingen_en_gezegden_K-O
 cewl -d 0 -m 2 -w /opt/wordlists/dutch12_unclean https://nl.wikipedia.org/wiki/Lijst_van_uitdrukkingen_en_gezegden_P-U
 cewl -d 0 -m 2 -w /opt/wordlists/dutch13_unclean https://nl.wikipedia.org/wiki/Lijst_van_uitdrukkingen_en_gezegden_V-Z
-sort -u /opt/wordlists/dutch*_unclean -o /opt/wordlists/words.txt
+cat /opt/wordlists/dutch*_unclean | sort | uniq > /opt/wordlists/words.txt
 rm /opt/wordlists/dutch*_unclean
 7z x /opt/wordlists/tmp.7z -o'/opt/wordlists/'
 rm /opt/wordlists/tmp.7z
@@ -68,24 +68,26 @@ wget --quiet -O /opt/rules/rule1.rule https://raw.githubusercontent.com/cyclone-
 wget --quiet -O /opt/rules/rule2.rule https://raw.githubusercontent.com/ramondunker/hashcat-azure/main/Hashcat-Azure/OneRuleToRuleThemAll.rule
 wget --quiet -O /opt/rules/rule3.rule https://raw.githubusercontent.com/hashcat/hashcat/master/rules/dive.rule
 wget --quiet -O /opt/rules/rule4.rule https://github.com/beurtschipper/Dutch-Password-List/raw/master/spipbest300.rule
-sort -u /opt/rules/rule*.rule -o /opt/rules/master.rule
+cat /opt/rules/rule*.rule | sort | uniq > /opt/rules/master.rule
 rm /opt/rules/rule*.rule
 
 # Download and merge masks
 wget --quiet -O /opt/masks/mask1.hcmask https://raw.githubusercontent.com/beurtschipper/Dutch-Password-List/master/spipbestmasks.hcmask
 wget --quiet -O /opt/masks/mask2.hcmask https://raw.githubusercontent.com/beurtschipper/Dutch-Password-List/master/spipfollowmasks.hcmask
 wget --quiet -O /opt/masks/mask3.hcmask https://raw.githubusercontent.com/xfox64x/Hashcat-Stuffs/master/masks/9_plus_microsoft_complexity_top_5000_masks.txt
-sort -u /opt/masks/mask*.hcmask -o /opt/masks/master.hcmask
+cat /opt/masks/mask*.hcmask | sort | uniq > /opt/masks/master.hcmask
 rm /opt/masks/mask*.hcmask
 
 # Request SSL certificate
+ufw --force disable
 region=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | jq -r '.compute.location')
 fqdn="$(hostname).$region.cloudapp.azure.com"
 rm /var/www/html/index.html
 systemctl start apache2
-certbot --apache --non-interactive --agree-tos -m info@ramondunker.nl -d $fqdn --pre-hook "ufw allow 80" --post-hook "ufw delete allow 80"
+certbot --apache --non-interactive --agree-tos -m info@ramondunker.nl -d $fqdn
 systemctl stop apache2
 systemctl disable apache2
+ufw --force enable
 
 # Install webinterface
 git clone https://github.com/ramondunker/hashcat-azure.git /tmp/hashcat-azure
