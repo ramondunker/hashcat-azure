@@ -35,7 +35,7 @@
   },
   "variables": {
     "nicName": "HashcatNetworkInterface",
-    "addressPrefix": "10.0.0.0/30",
+    "addressPrefix": "10.0.0.0/29",
     "subnetName": "Subnet",
     "subnetPrefix": "10.0.0.0/30",
     "publicIPAddressName": "HashcatPublicIP",
