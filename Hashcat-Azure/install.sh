@@ -40,9 +40,6 @@ make && make install
 
 # Download and generate wordlists
 mkdir /opt/wordlists
-mkdir /opt/hashes
-mkdir /opt/rules
-mkdir /opt/masks
 wget --quiet -O /opt/wordlists/rockyou.txt https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
 wget --quiet -O /opt/wordlists/tmp.7z https://hashkiller.io/downloads/hashkiller-dict-2020-01-26.7z
 wget --quiet -O /opt/wordlists/dutch1_unclean https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/dutch_wordlist
@@ -64,6 +61,7 @@ rm /opt/wordlists/dutch*_unclean
 rm /opt/wordlists/tmp.7z
 
 # Download and merge rules
+mkdir /opt/rules
 wget --quiet -O /opt/rules/rule1.rule https://raw.githubusercontent.com/cyclone-github/rules/master/cyclone_250.rule
 wget --quiet -O /opt/rules/rule2.rule https://raw.githubusercontent.com/ramondunker/hashcat-azure/main/Hashcat-Azure/OneRuleToRuleThemAll.rule
 wget --quiet -O /opt/rules/rule3.rule https://raw.githubusercontent.com/hashcat/hashcat/master/rules/dive.rule
@@ -72,6 +70,7 @@ sort -u /opt/rules/rule*.rule -o /opt/rules/master.rule
 rm /opt/rules/rule*.rule
 
 # Download and merge masks
+mkdir /opt/masks
 wget --quiet -O /opt/masks/mask1.hcmask https://raw.githubusercontent.com/beurtschipper/Dutch-Password-List/master/spipbestmasks.hcmask
 wget --quiet -O /opt/masks/mask2.hcmask https://raw.githubusercontent.com/beurtschipper/Dutch-Password-List/master/spipfollowmasks.hcmask
 wget --quiet -O /opt/masks/mask3.hcmask https://raw.githubusercontent.com/xfox64x/Hashcat-Stuffs/master/masks/9_plus_microsoft_complexity_top_5000_masks.txt
@@ -88,6 +87,7 @@ systemctl stop apache2
 systemctl disable apache2
 
 # Install webinterface
+mkdir /opt/hashes
 git clone https://github.com/ramondunker/hashcat-azure.git /tmp/hashcat-azure
 cp -R /tmp/hashcat-azure/crackerjack /opt/crackerjack
 cp /tmp/hashcat-azure/Hashcat-Azure/generate_wordlist.sh /opt/wordlists/generate_wordlist.sh
