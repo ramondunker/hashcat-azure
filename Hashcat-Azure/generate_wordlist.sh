@@ -31,7 +31,7 @@ function GetFullURL() {
   url=$(echo "$target" | httpx -fr -silent -json | jq -r '."final-url"')
 }
 
-# Uses cewl to extract strings from targets website. A depth of 3 will be used and all unique words longer than 4 characters will be written to /opt/wordlists/.
+# Uses cewl to extract strings from targets website. A depth of 3 will be used and all unique words longer than 4 characters will be written to /opt/wordlists/$target.txt.
 function GenerateWordlists() {
   cewl -d 3 -m 4 -w /opt/wordlists/$target.txt $url
 }
