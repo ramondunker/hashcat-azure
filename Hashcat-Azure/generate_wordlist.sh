@@ -6,6 +6,7 @@ while getopts "t:" opt; do
 done
 if [[ $target == "" ]]; then
   echo 'Target (-t) not given.' >&2
+  echo 'For example: ordina.nl' >&2
   exit 1
 fi
 
