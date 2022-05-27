@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# This script accepts the domain name of a client as input to generate a wordlist based on strings found on their main website.
+
 while getopts "t:" opt; do
  case $opt in
    t) target=$OPTARG;;
