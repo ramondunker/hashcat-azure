@@ -9,6 +9,11 @@ while getopts "i:" opt; do
  esac
 done
 
+# Check for lock
+while fuser /var/lib/apt/lists/lock > /dev/null ; do
+    sleep 10
+done
+
 # Install required packages
 apt-get -o DPkg::Lock::Timeout=60 update
 apt-get -o DPkg::Lock::Timeout=60 upgrade -y
