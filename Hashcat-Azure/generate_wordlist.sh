@@ -21,7 +21,7 @@ function StartUpChecks() {
   if ! command -v go &> /dev/null; then
     wget https://golang.org/dl/go1.17.linux-amd64.tar.gz
     sudo tar -zxvf go1.17.linux-amd64.tar.gz -C /usr/local/
-    export PATH=$HOME/go/bin:${PATH}
+    export PATH=/root/go/bin:/usr/local/go/bin:${PATH}
     rm go1.17.linux-amd64.tar.gz
   fi
   if ! command -v httpx &> /dev/null; then
